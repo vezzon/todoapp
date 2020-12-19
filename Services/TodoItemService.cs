@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using toDoApp.DataAccess;
 using toDoApp.Models;
 
@@ -13,37 +15,37 @@ namespace toDoApp.Services
         {
             _context = context;
         }
-        public List<TodoItem> GetAllItems() 
+        public async Task<List<TodoItem>> GetAllItemsAsync() 
         {
-            return _context.TodoItems.ToList();
+            return await _context.TodoItems.ToListAsync();
         }
 
-        public List<TodoItem> AddTodoItem(TodoItem item)
+        public async Task<List<TodoItem>> AddTodoItemAsync(TodoItem item)
         {
             _context.Add(item);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return _context.TodoItems.ToList();
         }
 
-        public TodoItem UpdateItem(TodoItem updatedItem)
+        public async Task<TodoItem> UpdateItemAsync(TodoItem updatedItem)
         {
-            var item = _context.TodoItems.First(x => x.Id == updatedItem.Id);
+            var item = await _context.TodoItems.FirstAsync(x => x.Id == updatedItem.Id);
             item.Name = updatedItem.Name;
             item.IsComplete = updatedItem.IsComplete;
             _context.Update(item);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return item;
         }
 
-        public void DeleteItem(int id)
+        public async Task DeleteItemAsync(int id)
         {
             var existingItem = _context.TodoItems.First(x => x.Id == id);
             _context.TodoItems.Remove(existingItem);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public TodoItem GetItemById(int id) {
-            return _context.TodoItems.FirstOrDefault(i => i.Id == id);
+        public async Task<TodoItem> GetItemByIdAsync(int id) {
+            return await _context.TodoItems.FirstOrDefaultAsync(i => i.Id == id);
         }
 
     }

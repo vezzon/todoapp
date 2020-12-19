@@ -21,45 +21,49 @@ namespace toDoApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<ActionResult> Get()
         {
-            return Ok(_itemService.GetAllItems());
+            return Ok(await _itemService.GetAllItemsAsync());
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetSingle(int id)
+        public async Task<ActionResult> GetSingle(int id)
         {
-            return Ok(_itemService.GetItemById(id));
+            var item = await _itemService.GetItemByIdAsync(id);
+            if (item == null)
+            {
+                return NotFound();
+            }
+            return Ok(item);
         }
 
         [HttpPost]
-        public IActionResult AddTodoItem(TodoItem item) 
+        public async Task<ActionResult> AddTodoItem(TodoItem item) 
         {
-            return Ok(_itemService.AddTodoItem(item));
+            return Ok(await _itemService.AddTodoItemAsync(item));
         }
 
         [HttpPut]
-        public IActionResult UpdateTodoItem(TodoItem item)
+        public async Task<ActionResult> UpdateTodoItem(TodoItem item)
         {
-            var existingItem = _itemService.GetItemById(item.Id);
-            if (existingItem == null)
+            var existingItem = _itemService.GetItemByIdAsync(item.Id);
+            if (await existingItem == null)
             {
                 return NotFound();
             }
-            return Ok(_itemService.UpdateItem(item));
+            return Ok(await _itemService.UpdateItemAsync(item));
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteTodoItem(int id)
+        public async Task<ActionResult> DeleteTodoItem(int id)
         {
-            var existingItem = _itemService.GetItemById(id);
-            if (existingItem == null)
+            var existingItem = _itemService.GetItemByIdAsync(id);
+            if (await existingItem == null)
             {
                 return NotFound();
             }
-            
-            _itemService.DeleteItem(id);
 
+            await _itemService.DeleteItemAsync(id);
             return Ok();
         }
     }
