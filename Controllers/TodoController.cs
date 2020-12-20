@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using toDoApp.Dtos;
 using toDoApp.Models;
 using toDoApp.Services;
 
 namespace toDoApp.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("/api/v1/[controller]")]
     public class TodoController : ControllerBase
     {
         private readonly ITodoItemService _itemService;
@@ -38,7 +39,7 @@ namespace toDoApp.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddTodoItem(TodoItem item) 
+        public async Task<ActionResult> AddTodoItem(TodoItemCreateDto item) 
         {
             return Ok(await _itemService.AddTodoItemAsync(item));
         }

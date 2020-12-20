@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using toDoApp.DataAccess;
+using toDoApp.Dtos;
 using toDoApp.Models;
 
 namespace toDoApp.Services
@@ -10,18 +12,21 @@ namespace toDoApp.Services
     public class TodoItemService : ITodoItemService
     {
         private readonly TodoItemsContext _context;
+        private readonly IMapper _mapper;
 
-        public TodoItemService(TodoItemsContext context)
+        public TodoItemService(TodoItemsContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
         public async Task<List<TodoItem>> GetAllItemsAsync() 
         {
             return await _context.TodoItems.ToListAsync();
         }
 
-        public async Task<List<TodoItem>> AddTodoItemAsync(TodoItem item)
+        public async Task<List<TodoItem>> AddTodoItemAsync(TodoItemCreateDto newItem)
         {
+            var item = _mapper.Map<TodoItem>(newItem);
             _context.Add(item);
             await _context.SaveChangesAsync();
             return _context.TodoItems.ToList();
