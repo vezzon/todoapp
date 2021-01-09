@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using toDoApp.DataAccess;
 using toDoApp.Models;
+using toDoApp.Repositories;
 using toDoApp.Services;
 
 namespace toDoApp
@@ -37,6 +38,7 @@ namespace toDoApp
             services.AddControllers();
             services.AddAutoMapper(typeof(Startup));
             services.AddScoped<ITodoItemService, TodoItemService>();
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddDbContext<TodoItemsContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddSwaggerGen(c =>
             {

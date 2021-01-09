@@ -8,5 +8,6 @@ namespace toDoApp.DataAccess
         public TodoItemsContext(DbContextOptions<TodoItemsContext> options) : base(options) { }
         
         public DbSet<TodoItem> TodoItems { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }

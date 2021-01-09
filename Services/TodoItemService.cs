@@ -11,46 +11,46 @@ namespace toDoApp.Services
 {
     public class TodoItemService : ITodoItemService
     {
-        private readonly TodoItemsContext _context;
+        private readonly TodoItemsContext _db;
         private readonly IMapper _mapper;
 
-        public TodoItemService(TodoItemsContext context, IMapper mapper)
+        public TodoItemService(TodoItemsContext db, IMapper mapper)
         {
-            _context = context;
+            _db = db;
             _mapper = mapper;
         }
         public async Task<List<TodoItem>> GetAllItemsAsync() 
         {
-            return await _context.TodoItems.ToListAsync();
+            return await _db.TodoItems.ToListAsync();
         }
 
         public async Task<List<TodoItem>> AddTodoItemAsync(TodoItemCreateDto newItem)
         {
             var item = _mapper.Map<TodoItem>(newItem);
-            _context.Add(item);
-            await _context.SaveChangesAsync();
-            return _context.TodoItems.ToList();
+            _db.Add(item);
+            await _db.SaveChangesAsync();
+            return _db.TodoItems.ToList();
         }
 
         public async Task<TodoItem> UpdateItemAsync(TodoItem updatedItem)
         {
-            var item = await _context.TodoItems.FirstAsync(x => x.Id == updatedItem.Id);
+            var item = await _db.TodoItems.FirstAsync(x => x.Id == updatedItem.Id);
             item.Name = updatedItem.Name;
             item.IsComplete = updatedItem.IsComplete;
-            _context.Update(item);
-            await _context.SaveChangesAsync();
+            _db.Update(item);
+            await _db.SaveChangesAsync();
             return item;
         }
 
         public async Task DeleteItemAsync(int id)
         {
-            var existingItem = _context.TodoItems.First(x => x.Id == id);
-            _context.TodoItems.Remove(existingItem);
-            await _context.SaveChangesAsync();
+            var existingItem = _db.TodoItems.First(x => x.Id == id);
+            _db.TodoItems.Remove(existingItem);
+            await _db.SaveChangesAsync();
         }
 
         public async Task<TodoItem> GetItemByIdAsync(int id) {
-            return await _context.TodoItems.FirstOrDefaultAsync(i => i.Id == id);
+            return await _db.TodoItems.FirstOrDefaultAsync(i => i.Id == id);
         }
 
     }
