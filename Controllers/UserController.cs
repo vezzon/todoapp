@@ -28,5 +28,13 @@ namespace toDoApp.Controllers
 
             return Ok();
         }
+        
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login(UserLoginDto logUser)
+        {
+            var response = await _repository.LoginAsync(logUser.Username, logUser.Password);
+
+            return Ok(response);
+        }
     }
 }

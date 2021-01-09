@@ -30,15 +30,17 @@ namespace toDoApp.Repositories
             return user.Id;
         }
 
-        public Task<string> LoginAsync(string username, string password)
+        public async Task<string> LoginAsync(string username, string password)
         {
-            throw new System.NotImplementedException();
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Username.ToLower().Equals(username.ToLower()));
+            if (user == null)
+                return "User doesn't exist";
+            return VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt) ? "You are logged in" : "Password incorrect";
         }
 
         public async Task<bool> UserExistsAsync(string username)
         {
-            return await _db.Users.AnyAsync(x =>
-                string.Equals(x.Username, username, StringComparison.CurrentCultureIgnoreCase));
+            return await _db.Users.AnyAsync(x => x.Username.ToLower().Equals(username.ToLower()));
         }
 
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
@@ -46,6 +48,18 @@ namespace toDoApp.Repositories
             using var hmac = new System.Security.Cryptography.HMACSHA512();
             passwordSalt = hmac.Key;
             passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+        }
+
+        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        {
+            using var hmac = new System.Security.Cryptography.HMACSHA512(passwordSalt);
+            var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            for (int i = 0; i < computedHash.Length; i++)
+            {
+                if (computedHash[i] != passwordHash[i])
+                    return false;
+            }
+            return true;
         }
     }
 }
