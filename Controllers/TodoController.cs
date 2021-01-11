@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using toDoApp.Dtos;
@@ -10,6 +11,7 @@ using toDoApp.Services;
 
 namespace toDoApp.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("/api/v1/[controller]")]
     public class TodoController : ControllerBase

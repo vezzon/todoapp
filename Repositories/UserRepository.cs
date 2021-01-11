@@ -1,7 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using toDoApp.DataAccess;
 using toDoApp.Models;
 
@@ -10,10 +15,12 @@ namespace toDoApp.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly TodoItemsContext _db;
+        private readonly IConfiguration _configuration;
 
-        public UserRepository(TodoItemsContext db)
+        public UserRepository(TodoItemsContext db, IConfiguration configuration)
         {
             _db = db;
+            _configuration = configuration;
         }
         public async Task<int> RegisterAsync(User user, string password)
         {
@@ -34,8 +41,10 @@ namespace toDoApp.Repositories
         {
             var user = await _db.Users.FirstOrDefaultAsync(x => x.Username.ToLower().Equals(username.ToLower()));
             if (user == null)
-                return "User doesn't exist";
-            return VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt) ? "You are logged in" : "Password incorrect";
+                return "User not found";
+            if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+                return "wrong password";
+            return CreateToken(user);
         }
 
         public async Task<bool> UserExistsAsync(string username)
@@ -60,6 +69,32 @@ namespace toDoApp.Repositories
                     return false;
             }
             return true;
+        }
+
+        private string CreateToken(User user)
+        {
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username)
+            };
+
+            SymmetricSecurityKey key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+
+            SigningCredentials credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = credentials
+            };
+
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+            
+            return tokenHandler.WriteToken(token);
         }
     }
 }
