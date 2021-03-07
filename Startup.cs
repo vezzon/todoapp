@@ -42,7 +42,8 @@ namespace toDoApp
             services.AddAutoMapper(typeof(Startup));
             services.AddScoped<ITodoItemService, TodoItemService>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddDbContext<TodoItemsContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            // services.AddDbContext<TodoItemsContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<TodoItemsContext>(opt => opt.UseSqlite("Data Source=ToDoApp.db"));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "toDoApp", Version = "v1" });
